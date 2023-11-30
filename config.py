@@ -1,2 +1,0 @@
-EPSILON = 0.2
-ALPHA = 0.8
