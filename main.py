@@ -1,13 +1,27 @@
-import torch
+import random
 
+from connect4.game import Game
+from connect4.state import State
+from mcts.mcts import MCTS
+from mcts.node import Node
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
-
-
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
+    tree = MCTS()
+    game = Game()
+    game.state.print()
+    while True:
+        # action = input(f"Choose action in {game.state.get_legal_actions()} :")
+        action = random.choice(game.state.get_legal_actions())
+        next_state, is_ended = game.state.apply_action(int(action))
+        game.state = next_state
+        game.state.print()
+        if game.state.is_ended():
+            break
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+        for _ in range(1000):
+            tree.do_rollout(Node(game.state))
+        best = tree.choose(Node(game.state))
+        game.state = best.state
+        best.state.print()
+        if best.is_terminal():
+            break
