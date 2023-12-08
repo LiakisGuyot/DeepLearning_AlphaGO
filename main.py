@@ -1,5 +1,5 @@
-from connect4.game import *
+from neuralnetwork.model import get_model_arch
+
 
 if __name__ == '__main__':
-    board = init_board()
-    render(board)
+    get_model_arch()

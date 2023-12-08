@@ -1,1 +1,2 @@
 numpy~=1.26.2
+torchinfo~=1.8.0
