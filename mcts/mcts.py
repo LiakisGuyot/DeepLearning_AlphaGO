@@ -1,78 +1,56 @@
-import math
-from collections import defaultdict
+from connect4.game import *
+from Node import Node
 
-from mcts.node import Node
+NUM_SIMULATIONS = 100
+
+test_board = np.array([
+    [0, -1, -1, -1, 1, 0, -1],
+    [0, 1, -1, 1, 1, 0, 1],
+    [-1, 1, -1, 1, 1, 0, -1],
+    [1, -1, 1, -1, -1, 0, -1],
+    [-1, -1, 1, -1, 1, 1, -1],
+    [-1, 1, 1, -1, 1, -1, 1]
+])
 
 
-class MCTS:
-    def __init__(self, exploration_weight=1):
-        self.q_val = defaultdict(int)
-        self.n_val = defaultdict(int)
-        self.children = dict()
-        self.exploration_weight = exploration_weight
+def dummy_model_predict(board: np.ndarray):
+    value_head = 0.5
+    policy_head = [0.5, 0, 0, 0, 0, 0.5, 0]
+    return value_head, policy_head
 
-    def choose(self, node: Node):
-        if node.is_terminal():
-            raise RuntimeError(f"choose called on terminal node {node}")
 
-        if node not in self.children:
-            return node.find_random_child()
+# Root init
 
-        def score(n):
-            if self.n_val[n] == 0:
-                return float("-inf")
-            return self.q_val[n] / self.n_val[n]
+root = Node(0, 1, test_board)
 
-        return max(self.children[node], key=score)
+# MCTS simulate
 
-    def do_rollout(self, node: Node):
-        path = self._select(node)
-        leaf = path[-1]
-        self._expand(leaf)
-        reward = self._simulate(leaf)
-        self._backpropagate(path, reward)
+for _ in range(NUM_SIMULATIONS):
+    node = root
+    path = [node]
 
-    def _select(self, node: Node):
-        path = []
-        while True:
-            path.append(node)
-            if node not in self.children or not self.children[node]:
-                return path
-            unexplored = self.children[node] - self.children.keys()
-            if unexplored:
-                n = unexplored.pop()
-                path.append(n)
-                return path
-            node = self._uct_select(node)
+    while len(node.children) > 0:
+        action, node = node.select_child()
+        path.append(node)
 
-    def _expand(self, node: Node):
-        if node in self.children:
-            return
-        self.children[node] = node.find_children()
+    value = None
+    if is_draw(node.state):
+        value = 0
+    if is_win(node.state, 1):
+        value = 1
+    if is_win(node.state, -1):
+        value = -1
 
-    def _simulate(self, node: Node):
-        invert_reward = False
-        while True:
-            if node.is_terminal():
-                reward = node.reward()
-                return 1 - reward if invert_reward else reward
-            node = node.find_random_child()
-            invert_reward = not invert_reward
+    if value is None:
+        value, action_p = dummy_model_predict(node.state)
+        node.expand(action_p)
 
-    def _backpropagate(self, path, reward):
-        for node in reversed(path):
-            self.n_val[node] += 1
-            self.q_val[node] += reward
-            reward = 1 - reward
+    for n in path:
+        n.value += value
+        n.visits += 1
 
-    def _uct_select(self, node: Node):
-        assert all(n in self.children for n in self.children[node])
+render(root.children[0].state)
+print(root.children[0].value)
 
-        log_n_vertex = math.log(self.n_val[node])
-
-        def uct(n):
-            return self.q_val[n] / self.n_val[n] + self.exploration_weight * math.sqrt(
-                log_n_vertex / self.n_val[n]
-            )
-
-        return max(self.children[node], key=uct)
+render(root.children[5].state)
+print(root.children[5].value)

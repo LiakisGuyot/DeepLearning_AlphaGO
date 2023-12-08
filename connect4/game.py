@@ -1,31 +1,68 @@
-import random
-
 import numpy as np
+from connect4.utils import *
 
-from connect4.state import State
+
+def init_board():
+    return np.zeros((6, 7), dtype=int)
 
 
-class Game:
-    def __init__(self):
-        self.state = State(np.zeros(42, dtype=int), 1)
+def apply_action(board: np.ndarray, player: int, action: int):
+    """
+    Apply an action in the board.
+    :param board:
+    :param player:
+    :param action:
+    :return:
+    """
+    _board = board.copy()
+    row_i = sum(board[:, action] == 0) - 1
+    _board[row_i, action] = player
+    return _board
 
-    def player_vs_player(self):
-        is_ended = False
-        while not is_ended:
-            self.state.print()
-            print(f"Player : {'X' if self.state.player_turn == 1 else 'O'} to play")
-            print(self.state.get_legal_actions())
-            action = input("Action : ")
-            action_done, is_ended = self.state.apply_action(int(action))
 
-    def player_vs_random(self):
-        is_ended = False
-        while not is_ended:
-            self.state.print()
-            print(f"Player : {'X' if self.state.player_turn == 1 else 'O'} to play")
-            print(self.state.get_legal_actions())
-            action = input("Action : ")
-            is_ended = self.state.apply_action(int(action))
-            if not is_ended:
-                action = random.choice(self.state.get_legal_actions())
-                is_ended = self.state.apply_action(action)
+def get_legal_moves(board: np.ndarray):
+    """
+    Get all legal moves.
+    :param board:
+    :return:
+    """
+    legal_moves = np.zeros(7, dtype=int)
+    legal_moves[board[0, :] == 0] = 1
+    return legal_moves
+
+
+def is_draw(board: np.ndarray):
+    """
+    Is the board full ?
+    :param board:
+    :return:
+    """
+    return np.count_nonzero(board) == 42
+
+
+def is_win(board: np.ndarray, player: int):
+    """
+    Does the player win the game ?
+    :param board:
+    :param player:
+    :return:
+    """
+    _board = board.flatten()
+    for a, b, c, d in win_states:
+        if _board[a] + _board[b] + _board[c] + _board[d] == 4 * player:
+            return True
+    return False
+
+
+def render(board: np.ndarray):
+    """
+    Render the board.
+    :param board:
+    :return:
+    """
+    print()
+    for i in range(len(board)):
+        line = "| "
+        for j in range(len(board[i])):
+            line += pieces[board[i, j]] + " "
+        print(line + "|")
