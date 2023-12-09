@@ -24,6 +24,13 @@ class Node:
                 next_state = apply_action(self.state, self.player_turn, action)
                 self.children[action] = Node(p, -self.player_turn, next_state)
 
+    def is_expanded(self):
+        """
+        Is the node expanded ?
+        :return:
+        """
+        return len(self.children) > 0
+
     def select_child(self):
         """
         Select best child (random here).

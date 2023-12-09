@@ -101,6 +101,7 @@ class Connect4Model(nn.Module):
         v = v.view(-1, 3 * 6 * 7)
         v = self.value_func(v)
         v = F.relu(v)
+        v = self.value_head(v)
         v = F.tanh(v)
 
         # policy head

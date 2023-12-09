@@ -1,16 +1,5 @@
 from connect4.game import *
-from Node import Node
-
-NUM_SIMULATIONS = 100
-
-test_board = np.array([
-    [0, -1, -1, -1, 1, 0, -1],
-    [0, 1, -1, 1, 1, 0, 1],
-    [-1, 1, -1, 1, 1, 0, -1],
-    [1, -1, 1, -1, -1, 0, -1],
-    [-1, -1, 1, -1, 1, 1, -1],
-    [-1, 1, 1, -1, 1, -1, 1]
-])
+from mcts.node import Node
 
 
 def dummy_model_predict(board: np.ndarray):
@@ -19,38 +8,51 @@ def dummy_model_predict(board: np.ndarray):
     return value_head, policy_head
 
 
-# Root init
+class MCTS:
+    def __init__(self, settings):
+        self.settings = settings
 
-root = Node(0, 1, test_board)
+    def run(self, model, state, player_turn):
+        root = Node(0, player_turn, state)
+        render(root.state)
 
-# MCTS simulate
+        # value, action_p = model.predict(state)
+        value, action_p = dummy_model_predict(state)
+        legal_actions = get_legal_moves(state)
+        action_p = action_p * legal_actions
+        action_p /= np.sum(action_p)  # To be checked
+        root.expand(action_p)
 
-for _ in range(NUM_SIMULATIONS):
-    node = root
-    path = [node]
+        for _ in range(self.settings['num_simulations']):
+            node = root
+            path = [node]
 
-    while len(node.children) > 0:
-        action, node = node.select_child()
-        path.append(node)
+            # Select node
+            while node.is_expanded():
+                action, node = node.select_child()
+                path.append(node)
 
-    value = None
-    if is_draw(node.state):
-        value = 0
-    if is_win(node.state, 1):
-        value = 1
-    if is_win(node.state, -1):
-        value = -1
+            value = None
+            if is_draw(node.state):
+                value = 0
+            if is_win(node.state, player_turn):
+                value = 1
+            if is_win(node.state, -player_turn):
+                value = -1
 
-    if value is None:
-        value, action_p = dummy_model_predict(node.state)
-        node.expand(action_p)
+            if value is None:
+                # value, action_p = model.predict(node.state)
+                value, action_p = dummy_model_predict(node.state)
+                legal_actions = get_legal_moves(node.state)
+                action_p = action_p * legal_actions  # avoid illegal moves
+                action_p /= np.sum(action_p)  # To be checked
+                node.expand(action_p)
 
-    for n in path:
-        n.value += value
-        n.visits += 1
+            self.rollout(path, value, -player_turn)
 
-render(root.children[0].state)
-print(root.children[0].value)
+        return root
 
-render(root.children[5].state)
-print(root.children[5].value)
+    def rollout(self, path, value, player_turn):
+        for n in path:
+            n.value += value if n.player_turn == player_turn else -value
+            n.visits += 1
