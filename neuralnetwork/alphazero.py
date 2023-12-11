@@ -158,7 +158,7 @@ class AlphaZero:
                 memory += self.self_play()
                 if bot is not None:
                     bot.send_notification("Self-play", "SelfPlay iteration "
-                                                       f"{self_play_iteration+1}/{SELF_PLAY_ITERATIONS} done...")
+                                                       f"{self_play_iteration+1}/{SELF_PLAY_ITERATIONS//PARALLEL_GAMES} done...")
 
             self.model.train()
             for epoch in trange(EPOCHS):
