@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
@@ -7,10 +9,14 @@ from game.connect4.utils import pieces
 from mcts.mcts import MCTS
 from neuralnetwork.alphazero import AlphaZero
 from neuralnetwork.model import Model
+from notif.notificationbot import NotificationBot
 
+from dotenv import load_dotenv
+
+load_dotenv()
 
 MODEL_FILENAME_TO_USE = "run/Connect4/model_7.pth"
-
+bot = NotificationBot(os.getenv("USER_KEY"), os.getenv("API_TOKEN"))
 
 def play_against_ai():
     """
@@ -67,11 +73,10 @@ def train_ai():
     :return:
     """
     game = Connect4()
-    # model = ResNet(t, 4, 64, device) TicTacToe
     model = Model(game, 9, 128)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
     az = AlphaZero(model, optimizer, game)
-    az.learn()
+    az.learn(bot)
 
 
 def show_loss_plot():

@@ -11,6 +11,12 @@ class ResBlock(nn.Module):
         self.bn2 = nn.BatchNorm2d(hidden)
 
     def forward(self, x):
+        """
+        Step into the block.
+        Represents the connections between layers.
+        :param x:
+        :return:
+        """
         residual = x
         x = F.relu(self.bn1(self.conv1(x)))
         x = self.bn2(self.conv2(x))

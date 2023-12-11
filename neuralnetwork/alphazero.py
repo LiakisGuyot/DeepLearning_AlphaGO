@@ -56,6 +56,11 @@ class AlphaZero:
         self.losses = {}
 
     def self_play(self):
+        """
+        Self-play the AI.
+        Get data for training...
+        :return:
+        """
         return_memory = []
         player = 1
         sp_games = [SelfPlayGame(self.game) for spg in range(PARALLEL_GAMES)]
@@ -100,6 +105,12 @@ class AlphaZero:
         return return_memory
 
     def train(self, memory: list, idx: int):
+        """
+        Train with datas obtained with self-playing
+        :param memory:
+        :param idx:
+        :return:
+        """
         random.shuffle(memory)
         _losses = []
         for batch_i in range(0, len(memory), BATCH_SIZE):
@@ -126,6 +137,12 @@ class AlphaZero:
         self.losses[idx] = _losses
 
     def learn(self, bot: NotificationBot = None):
+        """
+        Learn process.
+        Bot inclusion (PushOver).
+        :param bot:
+        :return:
+        """
         start = datetime.now()
         if bot is not None:
             bot.send_notification("Starting learning", f"Learning with ITERATIONS = {ITERATIONS} "
@@ -156,6 +173,10 @@ class AlphaZero:
             bot.send_notification("Learning done", f"Learning just finished, took {end-start}")
 
     def create_directories(self):
+        """
+        Create directories to save models.
+        :return:
+        """
         if not os.path.exists("run"):
             os.mkdir("run")
         if not os.path.exists(f"run/{self.game}"):

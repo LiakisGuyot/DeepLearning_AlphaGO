@@ -42,7 +42,7 @@ class Model(nn.Module):
     def forward(self, x):
         """
         Step into the model.
-        Represents the connexion between layers.
+        Represents the connections between layers.
         :param x:
         :return:
         """

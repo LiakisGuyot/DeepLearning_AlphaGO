@@ -1,6 +1,4 @@
-"""
-Every win states.
-"""
+# Every win states in Connect 4
 win_states = [
     [0, 1, 2, 3],
     [1, 2, 3, 4],
@@ -75,9 +73,8 @@ win_states = [
     [15, 23, 31, 39],
     [14, 22, 30, 38],
 ]
-"""
-Pieces def
-"""
+
+# Pieces
 pieces = {
     -1: 'O',
     0: ' ',
