@@ -1,28 +1,24 @@
 import math
 
 import numpy as np
-from connect4.game import apply_action
+
+from game.game import Game
+from settings import C
 
 
 class Node:
-    def __init__(self, prior: int, player_turn: int, state: np.ndarray):
-        self.prior = prior
-        self.player_turn = player_turn
+    def __init__(self, game: Game, state: np.ndarray, parent: 'Node' = None, action: int = None,
+                 prior: float = 0, visits: int = 0):
+        self.game = game
         self.state = state
-        self.children = {}
-        self.value = 0
-        self.visits = 0
+        self.parent = parent
+        self.action = action
 
-    def expand(self, action_p: list[float | int]):
-        """
-        Expand a node (creation of children).
-        :param action_p:
-        :return:
-        """
-        for action, p in enumerate(action_p):
-            if p > 0:
-                next_state = apply_action(self.state, self.player_turn, action)
-                self.children[action] = Node(p, -self.player_turn, next_state)
+        self.children = []
+
+        self.prior = prior
+        self.visits = visits
+        self.value = 0
 
     def is_expanded(self):
         """
@@ -31,24 +27,48 @@ class Node:
         """
         return len(self.children) > 0
 
-    def select_child(self):
+    def select(self):
         """
-        Select best child (random here).
+        Get the best child depending on UCB score (Upper Confident Bounds).
         :return:
         """
-        max_action, max_child = max(self.children.items(), key=lambda item: ucb(self, item[1]))
-        return max_action, max_child
+        return max(self.children, key=self.ucb_score)
 
+    def expand(self, policy: np.ndarray):
+        """
+        Expand parent node into children nodes for each legal moves (based on policy).
+        :param policy:
+        :return:
+        """
+        for action, prob in enumerate(policy):
+            if prob > 0:
+                child_state = self.game.apply_action(state=self.state, player=1, action=action)
+                child_state = self.game.switch_state_perspective(state=child_state, player=-1)
 
-def ucb(parent: Node, child: Node):
-    """
-    UCB score function.
-    :param parent:
-    :param child:
-    :return:
-    """
-    p_score = child.prior * math.sqrt(parent.visits) / (child.visits + 1)
-    if child.visits == 0:
-        return p_score
-    v_score = child.value / child.visits
-    return v_score + p_score
+                child = Node(self.game, child_state, self, action, prob)
+                self.children.append(child)
+
+    def back_propagate(self, value):
+        """
+        Back propagate value through parents.
+        :param value:
+        :return:
+        """
+        self.value += value
+        self.visits += 1
+
+        value = self.game.get_opponent_value(value)
+        if self.parent is not None:
+            self.parent.back_propagate(value)
+
+    def ucb_score(self, child: 'Node'):
+        """
+        Get UCB score of parent-child.
+        :param child:
+        :return:
+        """
+        if child.visits == 0:
+            q_val = 0
+        else:
+            q_val = 1 - ((child.value / child.visits) + 1) / 2
+        return q_val + child.prior * C * (math.sqrt(self.visits) / (child.visits + 1))
