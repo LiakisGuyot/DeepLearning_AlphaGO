@@ -38,7 +38,7 @@ class MCTS:
             spg_policy = policy[i]
             legal_moves = self.game.get_legal_moves(states[i])
             spg_policy *= legal_moves
-            spg_policy /= np.sum(policy)
+            spg_policy /= np.sum(spg_policy)
 
             spg.root = Node(self.game, states[i], visits=1)
             spg.root.expand(spg_policy)
@@ -60,7 +60,6 @@ class MCTS:
                     spg.node = node
 
             expandable_sp_games = [map_i for map_i in range(len(sp_games)) if sp_games[map_i].node is not None]
-            value = None
             if len(expandable_sp_games) > 0:
                 states = np.stack(
                     [sp_games[map_i].node.state for map_i in expandable_sp_games]

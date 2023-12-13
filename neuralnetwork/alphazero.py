@@ -66,9 +66,8 @@ class AlphaZero:
         sp_games = [SelfPlayGame(self.game) for spg in range(PARALLEL_GAMES)]
 
         while len(sp_games) > 0:
-            states = np.stack(
-                [spg.state for spg in sp_games]
-            )
+            states = np.stack([spg.state for spg in sp_games])
+
             neutral_states = self.game.switch_state_perspective(states, player)
             self.mcts.search(neutral_states, sp_games)
 

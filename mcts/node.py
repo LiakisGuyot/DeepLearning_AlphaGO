@@ -32,7 +32,14 @@ class Node:
         Get the best child depending on UCB score (Upper Confident Bounds).
         :return:
         """
-        return max(self.children, key=self.ucb_score)
+        best_child = None
+        best_ucb_score = -np.inf
+        for child in self.children:
+            ucb = self.ucb_score(child)
+            if ucb > best_ucb_score:
+                best_child = child
+                best_ucb_score = ucb
+        return best_child
 
     def expand(self, policy: np.ndarray):
         """
@@ -42,7 +49,8 @@ class Node:
         """
         for action, prob in enumerate(policy):
             if prob > 0:
-                child_state = self.game.apply_action(state=self.state, player=1, action=action)
+                child_state = self.state.copy()
+                child_state = self.game.apply_action(state=child_state, player=1, action=action)
                 child_state = self.game.switch_state_perspective(state=child_state, player=-1)
 
                 child = Node(self.game, child_state, self, action, prob)

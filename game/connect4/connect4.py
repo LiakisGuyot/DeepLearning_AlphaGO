@@ -11,13 +11,12 @@ class Connect4(Game):
         return "Connect4"
 
     def get_init_state(self):
-        return np.zeros((self.row_count, self.column_count), dtype=int)
+        return np.zeros((self.row_count, self.column_count))
 
     def apply_action(self, state: np.ndarray, player: int, action: int):
-        _state = state.copy()
         row_i = np.max(np.where(state[:, action] == 0))
-        _state[row_i, action] = player
-        return _state
+        state[row_i, action] = player
+        return state
 
     def get_legal_moves(self, state: np.ndarray):
         return (state[0] == 0).astype(np.uint8)

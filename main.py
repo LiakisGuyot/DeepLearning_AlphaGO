@@ -18,6 +18,7 @@ load_dotenv()
 MODEL_FILENAME_TO_USE = "run/Connect4/model_7.pth"
 bot = NotificationBot(os.getenv("USER_KEY"), os.getenv("API_TOKEN"))
 
+
 def play_against_ai():
     """
     Start a session Human vs AI.
