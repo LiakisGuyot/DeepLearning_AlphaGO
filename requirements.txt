@@ -1,2 +1,15 @@
 numpy~=1.26.2
 torchinfo~=1.8.0
+matplotlib~=3.8.0
+python-dotenv~=1.0.0
+tqdm~=4.65.0
+
+--find-links https://download.pytorch.org/whl/torch_stable.html
+torch
+torchvision
+torchaudio
+
+# Pushover library (useful for training)
+# Note: you have to execute "python.exe -m pip install --upgrade pip setuptools==57.5.0" before install this package to avoid error use_2to3
+#
+# python-pushover
