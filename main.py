@@ -100,6 +100,10 @@ def show_loss_plot():
 
 
 if __name__ == '__main__':
+    train_ai()
+
+
+if __name__ == '__main2__':
     print("Welcome aboard, can I help you ?\n")
     print("Enter 1 to train the AI with settings set...........")
     print("Enter 2 to play against the AI......................")
