@@ -19,6 +19,12 @@ bot = NotificationBot(os.getenv("USER_KEY"), os.getenv("API_TOKEN"))
 
 
 def ai_vs_random(game, model):
+    """
+    Start one game random vs AI and return final value.
+    :param game:
+    :param model:
+    :return:
+    """
     player = 1
     state = game.get_init_state()
 
@@ -48,6 +54,11 @@ def ai_vs_random(game, model):
 
 
 def launch_randoms(n=1000):
+    """
+    Launch n games random vs AI.
+    :param n:
+    :return:
+    """
     print("Launching", n, "random games....")
     game = Connect4()
     model = Model(game, 9, 128)
