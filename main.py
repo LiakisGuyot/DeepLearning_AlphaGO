@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-MODEL_FILENAME_TO_USE = "run/Connect4/model_7.pth"
+MODEL_FILENAME_TO_USE = "run/Connect4/model_latest.pth"
 bot = NotificationBot(os.getenv("USER_KEY"), os.getenv("API_TOKEN"))
 
 
@@ -87,10 +87,12 @@ def show_loss_plot():
     """
     game = Connect4()
     model = Model(game, 9, 128)
+    losses_tot = []
     loaded_model = torch.load(MODEL_FILENAME_TO_USE, map_location=model.device)
     for epoch, losses in loaded_model["losses"].items():
-        plt.plot(range(1, len(losses) + 1), losses, label=f'Epoch {epoch}')
+        losses_tot += losses
 
+    plt.plot(range(1, len(losses_tot) + 1), losses_tot, label='Loss')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
     plt.title('Loss evolution for each epoch')
@@ -100,10 +102,6 @@ def show_loss_plot():
 
 
 if __name__ == '__main__':
-    train_ai()
-
-
-if __name__ == '__main2__':
     print("Welcome aboard, can I help you ?\n")
     print("Enter 1 to train the AI with settings set...........")
     print("Enter 2 to play against the AI......................")
