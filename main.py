@@ -154,7 +154,7 @@ def show_loss_plot():
     plt.plot(range(1, len(losses_tot) + 1), losses_tot, label='Loss')
     plt.xlabel('Iteration')
     plt.ylabel('Loss')
-    plt.title('Loss evolution for each epoch')
+    plt.title('Loss evolution')
     plt.legend()
 
     plt.show()
